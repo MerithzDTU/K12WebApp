@@ -47,13 +47,13 @@ else
 
     string btnText = string.Empty;
 
+    User user = new User { Role = new Role() };
+
     protected override async Task OnInitializedAsync()
     {
         btnText = Id == null ? "Gem ny bruger" : "Opdater bruger";
         await UserService.GetRoles();
     }
-
-    User user = new User { Role = new Role() };
 
     protected override async Task OnParametersSetAsync()
     {

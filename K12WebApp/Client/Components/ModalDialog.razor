@@ -2,14 +2,14 @@
 <div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header border-0" style="background-color: #212121;">
         <h5 class="modal-title">@Title</h5>
-        <button type="button" class="btn-close" @onclick="@ModalCancel">&times;</button>
+        <button type="button" class="btn-close" style="background-color: whitesmoke" @onclick="@ModalCancel"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="background-color: #212121">
           <p>@Body</p>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer border-0" style="background-color: #212121">
                 @switch (DialogType)
                 {
                     case ModalDialogType.Ok:

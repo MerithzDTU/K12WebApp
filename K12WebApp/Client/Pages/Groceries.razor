@@ -3,39 +3,43 @@
 @inject IGroceryService GroceryService
 @inject NavigationManager NavigationManager
 
-<PageTitle>Indkøb </PageTitle>
+<PageTitle>Indkøb</PageTitle>
 
-<h3>Indkøb</h3>
+<h1>Indkøb</h1>
 
-<table class="table">
-    <thead>
+<EditForm Model="grocery" OnSubmit="HandleSubmit" style="margin:0 auto;">
+    <div class="input-group mb-3">
+        <InputText id="groceryname" @bind-Value="grocery.GroceryName" style="background-color: #212121; color: navajowhite" class="form-control" placeholder="Indtast Vare"></InputText>
+        <button class="btn btn-success" typeof="submit">Tilføj en ny vare</button>
+    </div>
+</EditForm>
+<table style="margin:0 auto" class="table table-dark table-borderless table-hover w-auto">
+    <thead style="color: ghostwhite">
         <tr>
+            <th></th>
             <th>Varer</th>
             <th>Tilføjet af</th>
             <th>Dato for tilføjelse</th>
-            <th>Opdateret den</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody style="color: antiquewhite">
         @foreach (var grocery in GroceryService.Groceries)
         {
             @if (grocery.isBought == false)
            {
             <tr>
-                <td>@grocery.GroceryName</td>
-                <td>@grocery.CreatedByUser.NickName</td>
-                <td>@grocery.DateCreated</td>
-                <td>@grocery.LastUpdated</td>
                 <td>
                     <!-- This should toggle a ModalDialog-->
-                    <input type="checkbox" @onchange="() => OpenDeleteDialog(grocery)" />
+                    <input class="form-check-input" type="checkbox" @onchange="() => OpenDeleteDialog(grocery)" />
                 </td>
+                <td style="color:navajowhite">@grocery.GroceryName</td>
+                <td>@grocery.CreatedByUser.NickName</td>
+                <td>@grocery.DateCreated</td>
             </tr>
            }
         }
     </tbody>
 </table>
-<button class="btn btn-primary" @onclick="CreateNewGrocery">Tilføj en ny vare</button>
 
 @if(DeleteDialogOpen)
 {
@@ -44,6 +48,8 @@
 
 @code {
     private Grocery _groceryToDelete;
+
+    Grocery grocery = new Grocery();
 
     public bool DeleteDialogOpen { get; set; }
 
@@ -57,7 +63,7 @@
     {
         if( accepted )
         {
-           await BoughtGrocery(_groceryToDelete);
+            await BoughtGrocery(_groceryToDelete);
             _groceryToDelete = null;
         }
         DeleteDialogOpen = false;
@@ -71,15 +77,16 @@
         StateHasChanged();
     }
 
-    void CreateNewGrocery()
-    {
-        NavigationManager.NavigateTo("/grocery");
-    }
-
     async Task BoughtGrocery(Grocery grocery)
     {
         grocery.isBought = true;
         await GroceryService.UpdateGrocery(grocery);
     }
 
+    async Task HandleSubmit()
+    {
+        grocery.CreatedByUserId = 1;
+        grocery.isBought = false;
+        await GroceryService.CreateGrocery(grocery);
+    }
 }
