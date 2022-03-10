@@ -6,6 +6,8 @@
         public string GroceryName { get; set; } = string.Empty;
         public bool isBought { get; set; }
         public DateTime DateCreated { get; set; } 
-
+        public DateTime? LastUpdated { get; set; }
+        public User? CreatedByUser { get; set; }
+        public int CreatedByUserId { get; set; }
     }
 }

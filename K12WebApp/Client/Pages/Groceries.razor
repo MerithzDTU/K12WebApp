@@ -1,0 +1,85 @@
+﻿@page "/groceries"
+@using K12WebApp.Client.Components
+@inject IGroceryService GroceryService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Indkøb </PageTitle>
+
+<h3>Indkøb</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Varer</th>
+            <th>Tilføjet af</th>
+            <th>Dato for tilføjelse</th>
+            <th>Opdateret den</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var grocery in GroceryService.Groceries)
+        {
+            @if (grocery.isBought == false)
+           {
+            <tr>
+                <td>@grocery.GroceryName</td>
+                <td>@grocery.CreatedByUser.NickName</td>
+                <td>@grocery.DateCreated</td>
+                <td>@grocery.LastUpdated</td>
+                <td>
+                    <!-- This should toggle a ModalDialog-->
+                    <input type="checkbox" @onchange="() => OpenDeleteDialog(grocery)" />
+                </td>
+            </tr>
+           }
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary" @onclick="CreateNewGrocery">Tilføj en ny vare</button>
+
+@if(DeleteDialogOpen)
+{
+    <ModalDialog Title="Er du sikker?" Body="Dette vil slette vareren fra indkøbslisen" OnClose="@OnDeleteDialogClose" DialogType="ModalDialog.ModalDialogType.DeleteCancel"></ModalDialog>
+}
+
+@code {
+    private Grocery _groceryToDelete;
+
+    public bool DeleteDialogOpen { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GroceryService.GetGroceries();
+    }
+
+
+    private async Task OnDeleteDialogClose(bool accepted)
+    {
+        if( accepted )
+        {
+           await BoughtGrocery(_groceryToDelete);
+            _groceryToDelete = null;
+        }
+        DeleteDialogOpen = false;
+        StateHasChanged();
+    }
+
+    private void OpenDeleteDialog(Grocery grocery)
+    {
+        DeleteDialogOpen = true;
+        _groceryToDelete = grocery;
+        StateHasChanged();
+    }
+
+    void CreateNewGrocery()
+    {
+        NavigationManager.NavigateTo("/grocery");
+    }
+
+    async Task BoughtGrocery(Grocery grocery)
+    {
+        grocery.isBought = true;
+        await GroceryService.UpdateGrocery(grocery);
+    }
+
+}
