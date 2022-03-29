@@ -26,14 +26,18 @@
                 <td>@user.LastName</td>
                 <td>@user.NickName</td>
                 <td>@user.Role.Name</td>
+                <AuthorizeView>
                 <td>
                     <button class="btn btn-primary" @onclick="(() => ShowUser(user.Id))"><i class="oi oi-pencil"></i></button>
                 </td>
+                </AuthorizeView>
             </tr>
         }
     </tbody>
 </table>
-<button class="btn btn-primary" @onclick="CreateNewUser">Opret Ny Bruger</button>
+<AuthorizeView>
+    <button class="btn btn-primary" @onclick="CreateNewUser">Opret Ny Bruger</button>
+</AuthorizeView>
 
 @code {
     protected override async Task OnInitializedAsync()
