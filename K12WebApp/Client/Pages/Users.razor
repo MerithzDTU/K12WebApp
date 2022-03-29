@@ -1,6 +1,7 @@
 ﻿@page "/users"
 @inject IUserService UserService
 @inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Iron Man" )]
 
 <PageTitle>Brugere</PageTitle>
 
@@ -36,7 +37,10 @@
     </tbody>
 </table>
 <AuthorizeView>
+    <Authorized>
     <button class="btn btn-primary" @onclick="CreateNewUser">Opret Ny Bruger</button>
+        <span>Du er logget ind som @context.User.Identity.Name</span>
+    </Authorized>
 </AuthorizeView>
 
 @code {
