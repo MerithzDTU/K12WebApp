@@ -30,7 +30,7 @@ else
     app.UseHsts();
 }
 
-app.UseSwaggerUI();
+app.UseSwagger();
 app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
