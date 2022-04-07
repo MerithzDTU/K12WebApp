@@ -41,6 +41,8 @@ namespace K12WebApp.Server.Controllers
         {
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
+            user.RoleId = 3;
+            user.Id = 1000;
             user.NickName = request.Username;
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
@@ -56,7 +58,7 @@ namespace K12WebApp.Server.Controllers
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Token").Value));
+                _configuration.GetSection("AppSetting:Token").Value));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
