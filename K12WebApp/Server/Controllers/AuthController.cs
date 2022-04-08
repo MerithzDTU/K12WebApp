@@ -11,12 +11,15 @@ namespace K12WebApp.Server.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly DataContext _context;
+
         public static User user = new User();
         private readonly IConfiguration _configuration;
 
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, DataContext context)
         {
             _configuration = configuration;
+            _context = context;
         }
 
         [HttpPost("login")]
@@ -42,19 +45,32 @@ namespace K12WebApp.Server.Controllers
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
             user.RoleId = 3;
-            user.Id = 1000;
+            //user.Role = new Role { Id = 3, Name = "Køkken Beboer" };
+            //Can work around this.
+            //user.Id = _context.Users.Count() + 1;
             user.NickName = request.Username;
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
 
-            return Ok(user);
+            _context.Users.Add(user);
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(user);
+            } catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return BadRequest("User did not get added");
         }
 
         private string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.NickName)
+                new Claim(ClaimTypes.Name, user.NickName),
+                //new Claim(ClaimTypes.Role, user.Role.Name),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
