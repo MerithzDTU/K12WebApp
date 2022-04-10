@@ -1,92 +1,134 @@
 ﻿@page "/groceries"
 @using K12WebApp.Client.Components
+@using System.Linq
 @inject IGroceryService GroceryService
 @inject NavigationManager NavigationManager
+@inject IDialogService DialogService
 
 <PageTitle>Indkøb</PageTitle>
 
-<h1>Indkøb</h1>
+<MudContainer Class="mt-16" MaxWidth="MaxWidth.Small">
+    <MudPaper Class="center rounded pa-14 mt-1" Elevation="5">
 
-<EditForm Model="grocery" OnSubmit="HandleSubmit" style="margin:0 auto;">
-    <div class="input-group mb-3">
-        <InputText id="groceryname" @bind-Value="grocery.GroceryName" style="background-color: #212121; color: navajowhite" class="form-control" placeholder="Indtast Vare"></InputText>
-        <button class="btn btn-success" typeof="submit">Tilføj en ny vare</button>
-    </div>
-</EditForm>
-<table style="margin:0 auto" class="table table-dark table-borderless table-hover w-auto">
-    <thead style="color: ghostwhite">
-        <tr>
-            <th></th>
-            <th>Varer</th>
-            <th>Tilføjet af</th>
-            <th>Dato for tilføjelse</th>
-        </tr>
-    </thead>
-    <tbody style="color: antiquewhite">
-        @foreach (var grocery in GroceryService.Groceries)
-        {
-            @if (grocery.isBought == false)
-           {
-            <tr>
-                <td>
-                    <!-- This should toggle a ModalDialog-->
-                    <input class="form-check-input" type="checkbox" @onchange="() => OpenDeleteDialog(grocery)" />
-                </td>
-                <td style="color:navajowhite">@grocery.GroceryName</td>
-                <td>@grocery.CreatedByUser.NickName</td>
-                <td>@grocery.DateCreated</td>
-            </tr>
-           }
-        }
-    </tbody>
-</table>
+        <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Indkøbsliste</MudText>
+        <div class="d-flex justify-center">
+            <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Color="Color.Primary" Style="height:30%; width:30%;" />
+        </div>
 
-@if(DeleteDialogOpen)
-{
-    <ModalDialog Title="Er du sikker?" Body="Dette vil slette vareren fra indkøbslisen" OnClose="@OnDeleteDialogClose" DialogType="ModalDialog.ModalDialogType.DeleteCancel"></ModalDialog>
-}
+                        
+        <MudGrid>
+            <MudItem xs="12">
+                <MudGrid Class="mt-10">
+                    <!-- GroceryName -->
+                    <MudItem xs="10" md="10" lg="10" xl="10">
+                        <MudTextField Label="Ny vare"
+                                      Placeholder="Fx. Mel"
+                                      @bind-Value="@grocery.GroceryName"
+                                      For="@(() => grocery.GroceryName)"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                    <!-- Add to list button -->
+                    <MudItem xs="2" md="2" lg="2" xl="2">
+                        <MudIconButton Icon="@Icons.Material.Outlined.LocalGroceryStore"
+                                       @onclick="() => HandleSubmit()"
+                                       ButtonType="ButtonType.Submit" aria-label="add"
+                                       Color="Color.Success"
+                                       Size="Size.Large"
+                                       Class="rounded-lg"
+                                       Style="width: 100%; height: 100%;"></MudIconButton>
+                    </MudItem>
+                    <!-- Table -->
+                    <MudTable Items="@GetAllGrociersNotBought()" MultiSelection="true" @bind-SelectedItems="selectedItems1" Hover="@hover">
+                        <HeaderContent>
+                            <MudTh>Varer</MudTh>
+                            <MudTh>Tilføjet af</MudTh>
+                            <MudTh>Dato for tilføjelse</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="grocery">
+                            <MudTd DataLabel="Varer">@grocery.GroceryName</MudTd>
+                            <MudTd DataLabel="Tilføjet af">@grocery.CreatedByUser.FirstName</MudTd>
+                            <MudTd DataLabel="Dato for tilføjelse">@grocery.DateCreated</MudTd>
+                        </RowTemplate>
+                        <FooterContent>
+                            <MudTd colspan="3">Vælg Alle</MudTd>
+                        </FooterContent>
+                    </MudTable>
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
+                               @onclick="() => RemoveGrocery(selectedItems1)"
+                               Color="Color.Error"
+                               Size="Size.Large"
+                               Class="rounded-lg"
+                               Style="width: 100%; height: 40px;">
+                        Fjern Varer
+                    </MudButton>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
 
 @code {
-    private Grocery _groceryToDelete;
+    private Grocery grocery = new Grocery();
 
-    Grocery grocery = new Grocery();
+    private bool hover = true;
 
-    public bool DeleteDialogOpen { get; set; }
+    int intValue = 0;
+
+    private HashSet<Grocery> selectedItems1 = new HashSet<Grocery>();
+
+    private IEnumerable<Grocery> allGroceries = new List<Grocery>();
 
     protected override async Task OnInitializedAsync()
     {
+        await RefreshGroceries();
+        Console.WriteLine("Size af listen allGroceries ---> : " + allGroceries.Count());
+    }
+    private async Task RefreshGroceries()
+    {
         await GroceryService.GetGroceries();
+        allGroceries = new List<Grocery>(GroceryService.Groceries);
     }
 
-
-    private async Task OnDeleteDialogClose(bool accepted)
+    private IEnumerable<Grocery> GetAllGrociersNotBought()
     {
-        if( accepted )
+        return allGroceries.ToList().FindAll((grocery) => !grocery.isBought);
+    }
+
+    private async Task RemoveGrocery(HashSet<Grocery> selectedGroceries)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Hvis du bekræfter at de valgte varer er købt, så slettes de fra listen.");
+        parameters.Add("ButtonText", "Fjern Varer");
+        parameters.Add("Color", Color.Error);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = DialogService.Show<ModalDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
         {
-            await BoughtGrocery(_groceryToDelete);
-            _groceryToDelete = null;
+            Guid.TryParse(result.Data.ToString(), out Guid deletedGroceries);
+            foreach (var grocery in selectedGroceries)
+            {
+                await BoughtGrocery(grocery);
+            }
         }
-        DeleteDialogOpen = false;
-        StateHasChanged();
     }
 
-    private void OpenDeleteDialog(Grocery grocery)
-    {
-        DeleteDialogOpen = true;
-        _groceryToDelete = grocery;
-        StateHasChanged();
-    }
-
-    async Task BoughtGrocery(Grocery grocery)
+    private async Task BoughtGrocery(Grocery grocery)
     {
         grocery.isBought = true;
         await GroceryService.UpdateGrocery(grocery);
     }
 
-    async Task HandleSubmit()
+    private async Task HandleSubmit()
     {
+        Console.WriteLine("P1. Grocery is ---->" + grocery.GroceryName);
         grocery.CreatedByUserId = 1;
         grocery.isBought = false;
         await GroceryService.CreateGrocery(grocery);
+        await RefreshGroceries();
+        grocery.GroceryName = string.Empty;
     }
 }

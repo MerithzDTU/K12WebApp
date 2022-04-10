@@ -27,6 +27,7 @@ namespace K12WebApp.Client.Services.GroceryService
         {
             var response = await result.Content.ReadFromJsonAsync<List<Grocery>>();
             Groceries = response;
+            Console.WriteLine("Size of list Groceries ----> : " + Groceries.Count);
             _navigationManager.NavigateTo("groceries");
         }
 
