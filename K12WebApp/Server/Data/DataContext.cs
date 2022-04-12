@@ -1,4 +1,5 @@
-﻿namespace K12WebApp.Server.Data
+﻿
+namespace K12WebApp.Server.Data
 {
     public class DataContext : DbContext
     {

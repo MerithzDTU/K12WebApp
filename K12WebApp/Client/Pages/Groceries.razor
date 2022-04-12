@@ -1,6 +1,8 @@
 ﻿@page "/groceries"
 @using K12WebApp.Client.Components
 @using System.Linq
+@using MudBlazor
+@using K12WebApp.Client.Helpers
 @inject IGroceryService GroceryService
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
@@ -15,7 +17,7 @@
             <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Color="Color.Primary" Style="height:30%; width:30%;" />
         </div>
 
-                        
+
         <MudGrid>
             <MudItem xs="12">
                 <MudGrid Class="mt-10">
@@ -23,7 +25,7 @@
                     <MudItem xs="10" md="10" lg="10" xl="10">
                         <MudTextField Label="Ny vare"
                                       Placeholder="Fx. Mel"
-                                      @bind-Value="@grocery.GroceryName"
+                                      @bind-Value="grocery.GroceryName"
                                       For="@(() => grocery.GroceryName)"
                                       Variant="Variant.Outlined" />
                     </MudItem>
@@ -42,12 +44,12 @@
                         <HeaderContent>
                             <MudTh>Varer</MudTh>
                             <MudTh>Tilføjet af</MudTh>
-                            <MudTh>Dato for tilføjelse</MudTh>
+                            <MudTh>Tilføjet</MudTh>
                         </HeaderContent>
                         <RowTemplate Context="grocery">
                             <MudTd DataLabel="Varer">@grocery.GroceryName</MudTd>
                             <MudTd DataLabel="Tilføjet af">@grocery.CreatedByUser.FirstName</MudTd>
-                            <MudTd DataLabel="Dato for tilføjelse">@grocery.DateCreated</MudTd>
+                            <MudTd DataLabel="Dato for tilføjelse">@grocery.DateCreated.ToRelativeDate()</MudTd>
                         </RowTemplate>
                         <FooterContent>
                             <MudTd colspan="3">Vælg Alle</MudTd>
