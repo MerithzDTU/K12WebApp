@@ -1,12 +1,11 @@
-global using K12WebApp.Client.Services.UserService;
-global using K12WebApp.Client.Services.GroceryService;
+global using K12WebApp.Client.Services;
 global using K12WebApp.Shared;
 global using Microsoft.AspNetCore.Components.Authorization;
 global using Blazored.LocalStorage;
+global using MudBlazor.Services;
 using K12WebApp.Client;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,6 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 // Custom Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroceryService, GroceryService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 //Authentication
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();

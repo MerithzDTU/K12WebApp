@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 
-namespace K12WebApp.Client.Services.UserService
+namespace K12WebApp.Client.Services
 {
     public class UserService : IUserService
     {

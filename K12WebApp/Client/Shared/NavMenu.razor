@@ -1,9 +1,11 @@
-﻿<MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All">Hjem</MudNavLink>
-    <MudNavLink Href="/counter" Match="NavLinkMatch.Prefix">Counter</MudNavLink>
-    <MudNavGroup Title ="Settings" Expanded="true">
-        <MudNavLink Href="/users"  Match="NavLinkMatch.Prefix">Users</MudNavLink>
-    </MudNavGroup>
-    <MudNavLink Href="/groceries"  Match="NavLinkMatch.Prefix">Indkøb</MudNavLink>
-    <MudNavLink Href="/fetchdata"  Match="NavLinkMatch.Prefix">Fetchdata</MudNavLink>
-</MudNavMenu>
+﻿
+<MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
+    <MudNavMenu Class="mud-width-full">
+        <MudText Typo="Typo.h6" Class="px-4">Køkken 12</MudText>
+        <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">WebApp</MudText>
+        <MudDivider Class="my-2" />
+        <MudNavLink Href="/dashboard" Icon="@Icons.Filled.Dashboard" Match="NavLinkMatch.Prefix">Feed</MudNavLink>
+        <MudNavLink Href="/users" Icon="@Icons.Filled.People" Match="NavLinkMatch.Prefix">Brugere</MudNavLink>
+        <MudNavLink Href="/groceries" Icon="@Icons.Filled.ReceiptLong" Match="NavLinkMatch.Prefix">Indkøb</MudNavLink>
+    </MudNavMenu>
+</MudPaper>

@@ -12,8 +12,6 @@ namespace K12WebApp.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly DataContext _context;
-
-        public static User user = new User();
         private readonly IConfiguration _configuration;
 
         public AuthController(IConfiguration configuration, DataContext context)
@@ -22,54 +20,82 @@ namespace K12WebApp.Server.Controllers
             _context = context;
         }
 
+        [HttpPost("userexists")]
+        public async Task<ActionResult<bool>> UserExists(string email)
+        {
+            User? response = await _context.Users.SingleOrDefaultAsync(user => user.Email == email);
+            if(response == null)
+            {
+                return BadRequest("User not found");
+            }
+            return Ok(true);
+        }
+
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(UserLoginDto request)
         {
-            if (user.NickName != request.Username)
+            User? dbUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == request.Email);
+
+            if (dbUser == null)
             {
                 return BadRequest("Brugeren er ikke fundet.");
             }
 
-            if(!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            if(!VerifyPasswordHash(request.Password, dbUser.PasswordHash, dbUser.PasswordSalt))
             {
                 return BadRequest("Forkert kodeord.");
             }
 
-            string token = CreateToken(user);
+            string token = CreateToken(dbUser).Result;
             return Ok(token);
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserLoginDto request)
+        public async Task<ActionResult<User>> Register(UserRegisterDto request)
         {
-            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-
-            user.RoleId = 3;
-            //user.Role = new Role { Id = 3, Name = "Køkken Beboer" };
-            //Can work around this.
-            //user.Id = _context.Users.Count() + 1;
-            user.NickName = request.Username;
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
-
-            _context.Users.Add(user);
-            try
+            var userExists = await _context.Users.AnyAsync(user => user.Email == request.Email);
+            if (!userExists)
             {
-                await _context.SaveChangesAsync();
+                User user = new();
+                //user.Role = new Role { Id = 3, Name = "Køkken Beboer" };
+                //Can work around this.
+                user.Id = _context.Users.Count() + 1;
+                user.RoleId = 3;
+                user.FirstName = request.FirstName;
+                user.LastName = request.LastName;
+                user.Email = request.Email;
+                user.NickName = request.NickName;
+                CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+
+                _context.Users.Add(user);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
                 return Ok(user);
-            } catch(Exception e)
+            } else
             {
-                Console.WriteLine(e);
+                return Conflict("User already exists!");
             }
-            return BadRequest("User did not get added");
         }
 
-        private string CreateToken(User user)
+        private async Task<string> CreateToken(User user)
         {
+            Role? userRole = await _context.Roles.FindAsync(user.RoleId);
+            if(userRole == null){
+                throw new Exception("The user's role was not found.");
+            }
+
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.NickName),
-                //new Claim(ClaimTypes.Role, user.Role.Name),
+                new Claim(ClaimTypes.Role, userRole.Name),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
@@ -88,22 +114,18 @@ namespace K12WebApp.Server.Controllers
             return jwt;
         }
 
-        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
+            using var hmac = new HMACSHA512();
+            passwordSalt = hmac.Key;
+            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
         }
 
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
-            using(var hmac = new HMACSHA512(user.PasswordSalt))
-            {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash);
-            }
+            using var hmac = new HMACSHA512(passwordSalt);
+            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            return computedHash.SequenceEqual(passwordHash);
         }
     }
 }

@@ -1,6 +1,11 @@
 ﻿@page "/register"
 
-@inject IUserService UserService
+@using K12WebApp.Client.Services;
+@inject NavigationManager NavigationManager;
+@inject IUserService userService;
+@inject IAuthService authService;
+@inject AuthenticationStateProvider AuthStateProvider;
+@inject ISnackbar Snackbar;
 
 <PageTitle>Register</PageTitle>
 <MudContainer Class="mt-16" MaxWidth="MaxWidth.Small">
@@ -61,6 +66,7 @@
                                        Size="Size.Large" 
                                        Class="rounded-lg" 
                                        Style="width: 100%; height: 50px;">
+                                       Registrér
                             </MudButton>
                         </MudItem>
                     </MudGrid>
@@ -76,7 +82,7 @@
     InputType PasswordInput = InputType.Password;
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
-    void ButtonPasswordToggle()
+    private void ButtonPasswordToggle()
     {
         @if (isShow)
         {
@@ -90,5 +96,36 @@
             PasswordInputIcon = Icons.Material.Filled.Visibility;
             PasswordInput = InputType.Text;
         }
+    }
+
+    private async Task OnValidSubmit()
+    {
+        StateHasChanged();
+        await HandleSubmit();
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            var response = await authService.RegisterUser(user);
+            if(response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                snackBarConf();
+                Snackbar.Add("User is created. Proceed to log in", Severity.Success);
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Register Exception caught: " + e.Message);
+        }
+    }
+
+    public void snackBarConf(){
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+        Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+        Snackbar.Configuration.VisibleStateDuration = 3000;
     }
 }

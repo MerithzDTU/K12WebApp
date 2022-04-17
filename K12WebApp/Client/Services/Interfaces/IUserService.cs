@@ -1,4 +1,4 @@
-﻿namespace K12WebApp.Client.Services.UserService
+﻿namespace K12WebApp.Client.Services
 {
     public interface IUserService
     {

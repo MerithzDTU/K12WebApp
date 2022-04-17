@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 
-namespace K12WebApp.Client.Services.GroceryService
+namespace K12WebApp.Client.Services
 {
     public class GroceryService : IGroceryService
     {
