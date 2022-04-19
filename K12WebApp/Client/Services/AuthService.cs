@@ -21,6 +21,7 @@ namespace K12WebApp.Client.Services
         public async Task<HttpResponseMessage> RegisterUser(UserRegisterDto user)
         {
             var response = _http.PostAsJsonAsync<UserRegisterDto>("api/auth/register", user);
+            Console.WriteLine("REGISTER USER WITH RESPONSE: " + response);
             return await response;
         }
 

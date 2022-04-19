@@ -34,8 +34,8 @@ namespace K12WebApp.Server.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(UserLoginDto request)
         {
-            User? dbUser = await _context.Users.FirstOrDefaultAsync(user => user.Email == request.Email);
-
+            User? dbUser = await _context.Users.FirstOrDefaultAsync(user => user.NickName == request.Username);
+            Console.WriteLine("DBUser name ----> " + dbUser.NickName);
             if (dbUser == null)
             {
                 return BadRequest("Brugeren er ikke fundet.");
@@ -59,7 +59,7 @@ namespace K12WebApp.Server.Controllers
                 User user = new();
                 //user.Role = new Role { Id = 3, Name = "Køkken Beboer" };
                 //Can work around this.
-                user.Id = _context.Users.Count() + 1;
+                //user.Id = _context.Users.Count() + 1;
                 user.RoleId = 3;
                 user.FirstName = request.FirstName;
                 user.LastName = request.LastName;
@@ -72,6 +72,7 @@ namespace K12WebApp.Server.Controllers
                 _context.Users.Add(user);
                 try
                 {
+                    Console.WriteLine("Adding user to db " + user);
                     await _context.SaveChangesAsync();
                 }
                 catch (Exception e)
@@ -125,6 +126,7 @@ namespace K12WebApp.Server.Controllers
         {
             using var hmac = new HMACSHA512(passwordSalt);
             var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            Console.WriteLine("COMPUTED HASH -----> " + computedHash + "PASSWORDHASH -----> " + passwordHash);
             return computedHash.SequenceEqual(passwordHash);
         }
     }

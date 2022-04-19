@@ -1,28 +1,121 @@
-﻿@page "/login"
+﻿@page "/"
+@page "/login"
 @inject HttpClient Http
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IAuthService AuthService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 @inject ILocalStorageService LocalStorage
 
-<h3>Login</h3>
+<PageTitle>Login</PageTitle>
+<MudContainer Class="mt-16" MaxWidth="MaxWidth.Small">
+    <MudPaper Class="center rounded pa-14 mt-1" Elevation="5">
+        <MudText Class="mud-typography-h3 mt-2" Align="Align.Center">
+            Køkken 12 WebApp
+        </MudText>
+        <MudText Class="mud-typography-h5 mt-2 mb-6" Color="Color.Primary" Align="Align.Center">Køkkenhjælperen</MudText>
+        <MudGrid>
+                <MudGrid Class="mt-10">
+                    <!-- Username -->
+                    <MudItem xs="12">
+                        <MudTextField T="string"
+                                      @bind-Value="user.Username"
+                                      Label="Brugernavn"
+                                      Variant="Variant.Outlined"
+                                      Adornment="Adornment.Start"
+                                      AdornmentColor="Color.Primary"
+                                      AdornmentIcon="@Icons.Material.Filled.Person"
+                                      IconSize="Size.Large" />
+                    </MudItem>
+                    <!-- Password -->
+                    <MudItem xs="12">
+                        <MudTextField T="string"
+                                      @bind-Value="user.Password"
+                                      Label="Password"
+                                      InputType="@PasswordInput"
+                                      Variant="Variant.Outlined"
+                                      Adornment="Adornment.Start"
+                                      AdornmentColor="Color.Primary"
+                                      AdornmentIcon="@PasswordInputIcon"
+                                      OnAdornmentClick="TogglePasswordHidden"
+                                      IconSize="Size.Large" />
+                    </MudItem>
+                    <!-- Register button -->
+                    <MudItem xs="12">
+                        <MudButton OnClick="HandleLogin"
+                                   ButtonType="ButtonType.Submit"
+                                   Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Size="Size.Large"
+                                   Class="rounded-lg"
+                                   Style="width: 100%; height: 50px;">
+                            Login
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
 
-<EditForm Model="user" OnSubmit="HandleLogin">
-    <label for="username">Name</label>
-    <InputText id="username" @bind-Value="user.Username"></InputText>
-    <label for="password">Password</label>
-    <InputText id="password" @bind-Value="user.Password" type="password" />
-    <button type="submit" class="btn btn-primary"> Log in</button>
-</EditForm>
 
 @code {
     UserLoginDto user = new UserLoginDto();
+    private string token = "";
 
     async Task HandleLogin()
     {
-        var result = await Http.PostAsJsonAsync("api/auth", user);
-        var token = await result.Content.ReadAsStringAsync();
-        Console.WriteLine(token);
-        await LocalStorage.SetItemAsync("token", token);
-        await AuthStateProvider.GetAuthenticationStateAsync();
+        try
+        {
+            HttpResponseMessage response = await AuthService.LoginUser(user);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                token = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(this.token);
+                await LocalStorage.SetItemAsync("token", token);
+
+                await AuthStateProvider.GetAuthenticationStateAsync();
+                snackBarConf();
+                Snackbar.Add("Login successfull", Severity.Success);
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                snackBarConf();
+                var responseMsg = await response.Content.ReadAsStringAsync();
+                Snackbar.Add(responseMsg, Severity.Error);
+                Console.WriteLine(responseMsg);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Login Exception caught: " + e.Message);
+        }
+
+    }
+
+    /* */
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Outlined.Lock;
+
+    void TogglePasswordHidden()
+    {
+        @if (PasswordInput == InputType.Password)
+        {
+            PasswordInputIcon = Icons.Material.Outlined.LockOpen;
+            PasswordInput = InputType.Text;
+        }
+        else
+        {
+            PasswordInputIcon = Icons.Material.Outlined.Lock;
+            PasswordInput = InputType.Password;
+        }
+    }
+
+    public void snackBarConf()
+    {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomRight;
+        Snackbar.Configuration.SnackbarVariant = Variant.Filled;
+        Snackbar.Configuration.VisibleStateDuration = 3000;
     }
 
 }

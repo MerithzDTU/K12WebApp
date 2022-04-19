@@ -10,7 +10,7 @@
 <PageTitle>Register</PageTitle>
 <MudContainer Class="mt-16" MaxWidth="MaxWidth.Small">
 
-    <EditForm Model="@user" Context="RegisterContext">
+    <EditForm Model="@user" Context="RegisterContext" OnValidSubmit="OnValidSubmit">
         <MudPaper Class="center rounded pa-14 mt-1" Elevation="5">
             <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Køkken 12.</MudText>
             <div class="d-flex justify-center">
@@ -22,7 +22,7 @@
                 <MudItem xs="12">
                     <MudGrid Class="mt-10">
                         <!-- FirstName -->
-                        <MudItem xs=12 md="6" lg="6" xl="6">
+                        <MudItem xs="12" md="6" lg="6" xl="6">
                             <MudTextField Label="First name"
                                           @bind-value="user.FirstName"
                                           Placeholder="Mette"
@@ -43,6 +43,14 @@
                                           @bind-value="user.Email"
                                           Placeholder="Your email address"
                                           For="@(() => user.Email)"
+                                          Variant="Variant.Outlined" />
+                        </MudItem>
+                        <!-- Username -->
+                        <MudItem xs=12>
+                            <MudTextField Label="Username"
+                                          @bind-value="user.NickName"
+                                          Placeholder="Bruges til at logge ind med"
+                                          For="@(() => user.NickName)"
                                           Variant="Variant.Outlined" />
                         </MudItem>
                         <!-- Password -->
@@ -109,11 +117,27 @@
         try
         {
             var response = await authService.RegisterUser(user);
+
+            // CONDITION: STATUSCODE == OK
             if(response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 snackBarConf();
                 Snackbar.Add("User is created. Proceed to log in", Severity.Success);
+                NavigationManager.NavigateTo("login");
 
+            }
+            // CONDITION: STATUSCODE == CONFLICT
+            if(response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                snackBarConf();
+                Snackbar.Add("User already exists.", Severity.Error);
+            }
+
+            // CONDITION: STATUSCODE == BADREQUEST
+            if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                snackBarConf();
+                Snackbar.Add("Failed to create user", Severity.Error);
             }
 
         }
