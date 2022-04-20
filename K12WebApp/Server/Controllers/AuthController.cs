@@ -24,7 +24,7 @@ namespace K12WebApp.Server.Controllers
         public async Task<ActionResult<bool>> UserExists(string email)
         {
             User? response = await _context.Users.SingleOrDefaultAsync(user => user.Email == email);
-            if(response == null)
+            if (response == null)
             {
                 return BadRequest("User not found");
             }
@@ -41,7 +41,7 @@ namespace K12WebApp.Server.Controllers
                 return BadRequest("Brugeren er ikke fundet.");
             }
 
-            if(!VerifyPasswordHash(request.Password, dbUser.PasswordHash, dbUser.PasswordSalt))
+            if (!VerifyPasswordHash(request.Password, dbUser.PasswordHash, dbUser.PasswordSalt))
             {
                 return BadRequest("Forkert kodeord.");
             }
@@ -57,9 +57,6 @@ namespace K12WebApp.Server.Controllers
             if (!userExists)
             {
                 User user = new();
-                //user.Role = new Role { Id = 3, Name = "Køkken Beboer" };
-                //Can work around this.
-                //user.Id = _context.Users.Count() + 1;
                 user.RoleId = 3;
                 user.FirstName = request.FirstName;
                 user.LastName = request.LastName;
@@ -80,7 +77,8 @@ namespace K12WebApp.Server.Controllers
                     Console.WriteLine(e);
                 }
                 return Ok(user);
-            } else
+            }
+            else
             {
                 return Conflict("User already exists!");
             }
@@ -89,7 +87,8 @@ namespace K12WebApp.Server.Controllers
         private async Task<string> CreateToken(User user)
         {
             Role? userRole = await _context.Roles.FindAsync(user.RoleId);
-            if(userRole == null){
+            if (userRole == null)
+            {
                 throw new Exception("The user's role was not found.");
             }
 
@@ -124,10 +123,12 @@ namespace K12WebApp.Server.Controllers
 
         private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
-            using var hmac = new HMACSHA512(passwordSalt);
-            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            Console.WriteLine("COMPUTED HASH -----> " + computedHash + "PASSWORDHASH -----> " + passwordHash);
-            return computedHash.SequenceEqual(passwordHash);
+            using (var hmac = new HMACSHA512(passwordSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                Console.WriteLine("COMPUTED HASH -----> " + computedHash + "PASSWORDHASH -----> " + passwordHash);
+                return computedHash.SequenceEqual(passwordHash);
+            }
         }
     }
 }

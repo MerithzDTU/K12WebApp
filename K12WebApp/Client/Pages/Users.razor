@@ -1,49 +1,71 @@
 ﻿@page "/users"
 @inject IUserService UserService
 @inject NavigationManager NavigationManager
-@attribute [Authorize(Roles = "Køkken Beboer")]
+
 
 <PageTitle>Brugere</PageTitle>
 
-<h1>Brugere</h1>
+<MudContainer Class="mt-16" MaxWidth="MaxWidth.Medium">
+    <MudPaper Class="align-content-center rounded pa-14 mt-1" Elevation="5">
+        <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Køkken beboere</MudText>
+        <div class="d-flex justify-center">
+            <MudIcon Icon="@Icons.Material.Rounded.People" Color="Color.Primary" Style="height:30%; width:30%;" />
+        </div>
 
-
-<table class="table table-dark table-striped">
-    <thead>
-        <tr>
-            <th>Fornavn</th>
-            <th>Efternavn</th>
-            <th>Kaldenavn</th>
-            <th>Rolle</th>
-            <th>Telfonnummer</th>
-            <th>Email</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in UserService.Users)
-        {
-            <tr>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
-                <td>@user.NickName</td>
-                <td>@user.Role.Name</td>
-                <AuthorizeView>
-                <td>
-                    <button class="btn btn-primary" @onclick="(() => ShowUser(user.Id))"><i class="oi oi-pencil"></i></button>
-                </td>
-                </AuthorizeView>
-            </tr>
-        }
-    </tbody>
-</table>
-<AuthorizeView>
-    <Authorized>
-    <button class="btn btn-primary" @onclick="CreateNewUser">Opret Ny Bruger</button>
-        <span>Du er logget ind som @context.User.Identity.Name</span>
-    </Authorized>
-</AuthorizeView>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudGrid Class="mt-10">
+                    <MudTable Items="@UserService.Users" Hover="@hover">
+                        <HeaderContent>
+                            <MudTh>Fornavn</MudTh>
+                            <MudTh>Efternavn</MudTh>
+                            <MudTh>Brugernavn</MudTh>
+                            <MudTh>Rolle</MudTh>
+                            <MudTh>Email</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="user">
+                            <MudTd DataLabel="Fornavn">@user.FirstName</MudTd>
+                            <MudTd DataLabel="Efternavn">@user.LastName</MudTd>
+                            <MudTd DataLabel="Brugernavn">@user.NickName</MudTd>
+                            <MudTd DataLabel="Rolle">@user.Role.Name</MudTd>
+                            <MudTd DataLabel="Email">@user.Email</MudTd>
+                            <AuthorizeView Roles="Admin, Køkken Ansvarlig">
+                                <Authorized>
+                                    <MudIconButton ButtonType="ButtonType.Button"
+                                                   Variant="Variant.Filled"
+                                                   @onclick="() => ShowUser(user.Id)"
+                                                   Icon="@Icons.Material.Filled.Edit"
+                                                   Color="Color.Transparent"
+                                                   Size="Size.Large"
+                                                   Class="rounded">
+                                    </MudIconButton>
+                                </Authorized>
+                            </AuthorizeView>
+                        </RowTemplate>
+                    </MudTable>
+                    <AuthorizeView>
+                        <Authorized>
+                            <MudButton ButtonType="ButtonType.Submit"
+                                       Variant="Variant.Filled"
+                                       @onclick="CreateNewUser"
+                                       Color="Color.Primary"
+                                       Size="Size.Large"
+                                       Class="rounded-lg"
+                                       Style="width: 100%; height: 40px"
+                            >Opret ny bruger</MudButton>
+                            <span>Du er logget ind som @context.User.Identity.Name</span>
+                        </Authorized>
+                    </AuthorizeView>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
 
 @code {
+
+    private bool hover = true;
+
     protected override async Task OnInitializedAsync()
     {
         await UserService.GetUsers();
