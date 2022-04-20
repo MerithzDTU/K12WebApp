@@ -2,8 +2,8 @@
 
 @using K12WebApp.Client.Services;
 @inject NavigationManager NavigationManager;
-@inject IUserService userService;
-@inject IAuthService authService;
+@inject IUserService UserService;
+@inject IAuthService AuthService;
 @inject AuthenticationStateProvider AuthStateProvider;
 @inject ISnackbar Snackbar;
 
@@ -64,6 +64,7 @@
                                 <!-- Password -->
                                 <MudItem xs=12>
                                     <MudTextField Label="Password"
+                                                  @bind-value="user.Password"
                                                   Placeholder=""
                                                   InputType="InputType.Password"
                                                   For="@(() => user.Password)"
@@ -118,15 +119,16 @@
 
     private async Task OnValidSubmit()
     {
-        StateHasChanged();
         await HandleSubmit();
+        StateHasChanged();
     }
 
     private async Task HandleSubmit()
     {
         try
         {
-            var response = await authService.RegisterUser(user);
+            Console.WriteLine(user.ToString());
+            var response = await AuthService.RegisterUser(user);
 
             // CONDITION: STATUSCODE == OK
             if (response.StatusCode == System.Net.HttpStatusCode.OK)

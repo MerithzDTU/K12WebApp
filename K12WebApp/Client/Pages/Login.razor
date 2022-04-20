@@ -70,7 +70,7 @@
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 token = await response.Content.ReadAsStringAsync();
-                Console.WriteLine(this.token);
+                Console.WriteLine("Token bliver :" + this.token);
                 await LocalStorage.SetItemAsync("token", token);
 
                 await AuthStateProvider.GetAuthenticationStateAsync();
