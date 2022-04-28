@@ -6,6 +6,8 @@
 @inject IGroceryService GroceryService
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
+@inject IAuthService AuthService
+
 
 <PageTitle>Indkøb</PageTitle>
 
@@ -74,8 +76,10 @@
 @code {
     private Grocery grocery = new Grocery();
 
-    private bool hover = true;
+    AuthenticationState authState;
 
+    private bool hover = true;
+    private int userId;
     int intValue = 0;
 
     private HashSet<Grocery> selectedItems1 = new HashSet<Grocery>();
@@ -85,7 +89,8 @@
     protected override async Task OnInitializedAsync()
     {
         await RefreshGroceries();
-        Console.WriteLine("Size af listen allGroceries ---> : " + allGroceries.Count());
+        userId = await AuthService.GetCurrentUserId();
+
     }
     private async Task RefreshGroceries()
     {
@@ -126,8 +131,7 @@
 
     private async Task HandleSubmit()
     {
-        Console.WriteLine("P1. Grocery is ---->" + grocery.GroceryName);
-        grocery.CreatedByUserId = 1;
+        grocery.CreatedByUserId = userId;
         grocery.isBought = false;
         await GroceryService.CreateGrocery(grocery);
         await RefreshGroceries();

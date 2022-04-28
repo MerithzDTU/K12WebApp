@@ -13,10 +13,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-// Custom Services
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IGroceryService, GroceryService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 
 //Authentication
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
@@ -24,6 +20,11 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>
 //Authorization and local storage
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
+
+// Custom Services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGroceryService, GroceryService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // MudBlazor
 builder.Services.AddMudServices();
