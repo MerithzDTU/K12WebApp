@@ -11,72 +11,79 @@
 
 <PageTitle>Indkøb</PageTitle>
 
-<MudContainer Class="mt-16" MaxWidth="MaxWidth.Small">
-    <MudPaper Class="center rounded pa-14 mt-1" Elevation="5">
 
-        <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Indkøbsliste</MudText>
-        <div class="d-flex justify-center">
-            <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Color="Color.Primary" Style="height:30%; width:30%;" />
-        </div>
+<AuthorizeView>
+    <NotAuthorized>
+        <NeedAuthority />
+    </NotAuthorized>
+
+    <Authorized>
+        <MudContainer Class="mt-16" MaxWidth="MaxWidth.Small">
+            <MudPaper Class="center rounded pa-14 mt-1" Elevation="5">
+
+                <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Indkøbsliste</MudText>
+                <div class="d-flex justify-center">
+                    <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Color="Color.Primary" Style="height:30%; width:30%;" />
+                </div>
 
 
-        <MudGrid>
-            <MudItem xs="12">
-                <MudGrid Class="mt-10">
-                    <!-- GroceryName -->
-                    <MudItem xs="10" md="10" lg="10" xl="10">
-                        <MudTextField Label="Ny vare"
-                                      Placeholder="Fx. Mel"
-                                      @bind-Value="grocery.GroceryName"
-                                      For="@(() => grocery.GroceryName)"
-                                      Variant="Variant.Outlined" />
-                    </MudItem>
-                    <!-- Add to list button -->
-                    <MudItem xs="2" md="2" lg="2" xl="2">
-                        <MudIconButton Icon="@Icons.Material.Outlined.LocalGroceryStore"
-                                       @onclick="() => HandleSubmit()"
-                                       ButtonType="ButtonType.Submit" aria-label="add"
-                                       Color="Color.Success"
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudGrid Class="mt-10">
+                            <!-- GroceryName -->
+                            <MudItem xs="10" md="10" lg="10" xl="10">
+                                <MudTextField Label="Ny vare"
+                                              Placeholder="Fx. Mel"
+                                              @bind-Value="grocery.GroceryName"
+                                              For="@(() => grocery.GroceryName)"
+                                              Variant="Variant.Outlined" />
+                            </MudItem>
+                            <!-- Add to list button -->
+                            <MudItem xs="2" md="2" lg="2" xl="2">
+                                <MudIconButton Icon="@Icons.Material.Outlined.LocalGroceryStore"
+                                               @onclick="() => HandleSubmit()"
+                                               ButtonType="ButtonType.Submit" aria-label="add"
+                                               Color="Color.Success"
+                                               Size="Size.Large"
+                                               Class="rounded-lg"
+                                               Style="width: 100%; height: 100%;"></MudIconButton>
+                            </MudItem>
+                            <!-- Table -->
+                            <MudTable Items="@GetAllGrociersNotBought()" MultiSelection="true" @bind-SelectedItems="selectedItems1" Hover="@hover">
+                                <HeaderContent>
+                                    <MudTh>Varer</MudTh>
+                                    <MudTh>Tilføjet af</MudTh>
+                                    <MudTh>Tilføjet</MudTh>
+                                </HeaderContent>
+                                <RowTemplate Context="grocery">
+                                    <MudTd DataLabel="Varer">@grocery.GroceryName</MudTd>
+                                    <MudTd DataLabel="Tilføjet af">@grocery.CreatedByUser.FirstName</MudTd>
+                                    <MudTd DataLabel="Dato for tilføjelse">@grocery.DateCreated.ToRelativeDate()</MudTd>
+                                </RowTemplate>
+                                <FooterContent>
+                                    <MudTd colspan="3">Vælg Alle</MudTd>
+                                </FooterContent>
+                            </MudTable>
+                            <MudButton ButtonType="ButtonType.Submit"
+                                       Variant="Variant.Filled"
+                                       @onclick="() => RemoveGrocery(selectedItems1)"
+                                       Color="Color.Error"
                                        Size="Size.Large"
                                        Class="rounded-lg"
-                                       Style="width: 100%; height: 100%;"></MudIconButton>
+                                       Style="width: 100%; height: 40px;">
+                                Fjern Varer
+                            </MudButton>
+                        </MudGrid>
                     </MudItem>
-                    <!-- Table -->
-                    <MudTable Items="@GetAllGrociersNotBought()" MultiSelection="true" @bind-SelectedItems="selectedItems1" Hover="@hover">
-                        <HeaderContent>
-                            <MudTh>Varer</MudTh>
-                            <MudTh>Tilføjet af</MudTh>
-                            <MudTh>Tilføjet</MudTh>
-                        </HeaderContent>
-                        <RowTemplate Context="grocery">
-                            <MudTd DataLabel="Varer">@grocery.GroceryName</MudTd>
-                            <MudTd DataLabel="Tilføjet af">@grocery.CreatedByUser.FirstName</MudTd>
-                            <MudTd DataLabel="Dato for tilføjelse">@grocery.DateCreated.ToRelativeDate()</MudTd>
-                        </RowTemplate>
-                        <FooterContent>
-                            <MudTd colspan="3">Vælg Alle</MudTd>
-                        </FooterContent>
-                    </MudTable>
-                    <MudButton ButtonType="ButtonType.Submit"
-                               Variant="Variant.Filled"
-                               @onclick="() => RemoveGrocery(selectedItems1)"
-                               Color="Color.Error"
-                               Size="Size.Large"
-                               Class="rounded-lg"
-                               Style="width: 100%; height: 40px;">
-                        Fjern Varer
-                    </MudButton>
                 </MudGrid>
-            </MudItem>
-        </MudGrid>
-    </MudPaper>
-</MudContainer>
-
+            </MudPaper>
+        </MudContainer>
+    </Authorized>
+</AuthorizeView>
 
 @code {
     private Grocery grocery = new Grocery();
 
-    AuthenticationState authState;
 
     private bool hover = true;
     private int userId;
@@ -89,7 +96,6 @@
     protected override async Task OnInitializedAsync()
     {
         await RefreshGroceries();
-        userId = await AuthService.GetCurrentUserId();
 
     }
     private async Task RefreshGroceries()
@@ -131,7 +137,7 @@
 
     private async Task HandleSubmit()
     {
-        grocery.CreatedByUserId = userId;
+        grocery.CreatedByUserId = await AuthService.GetCurrentUserId();
         grocery.isBought = false;
         await GroceryService.CreateGrocery(grocery);
         await RefreshGroceries();

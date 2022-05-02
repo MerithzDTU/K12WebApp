@@ -42,6 +42,23 @@ namespace K12WebApp.Client.Services
             }
         }
 
+        public async Task<string> GetCurrentUserRole()
+        {
+            var tokenS = await GetCurrentToken();
+            var roleClaim = tokenS.Claims.Where(x => x.Type == ClaimTypes.Role).FirstOrDefault();
+            if(roleClaim != null)
+            {
+                string userRole = roleClaim.Value;
+                return userRole;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+
+
         /* USER LOGIN */
         public async Task<HttpResponseMessage> LoginUser(UserLoginDto user)
         {
@@ -64,7 +81,9 @@ namespace K12WebApp.Client.Services
             return await response;
         }
 
-        
-
+        public Task<bool> UserHasPermissions()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

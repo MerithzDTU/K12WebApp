@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -49,6 +50,7 @@ namespace K12WebApp.Server.Controllers
             string token = CreateToken(dbUser).Result;
             return Ok(token);
         }
+
 
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserRegisterDto request)

@@ -14,7 +14,6 @@ namespace K12WebApp.Server.Controllers
             _context = context;
         }
 
-
         [HttpGet]
         public async Task<ActionResult<List<User>>> GetUsers()
         {
