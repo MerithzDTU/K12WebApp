@@ -1,0 +1,69 @@
+﻿@page "/chores"
+@using System.Globalization
+
+<PageTitle>Tjanser</PageTitle>
+
+<AuthorizeView>
+    <NotAuthorized>
+
+    </NotAuthorized>
+
+    <Authorized>
+        <MudContainer Class="mt-10" MaxWidth="MaxWidth.Small">
+            <MudPaper Class="center rounded pa-14 mt-1" Elevation="5">
+                <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Tjanseliste</MudText>
+                <div class="d-flex justify-center">
+                    <MudIcon Icon="@Icons.Material.Rounded.CleaningServices" Color="Color.Primary" Style="height:30%; width:30%;" />
+                </div>
+
+                <MudGrid Class="mt-10">
+                    @*<MudTable>
+                        <HeaderContent>
+                            <MudTh>Tjans</MudTh>
+                            <MudTh>Beskrivelse</MudTh>
+                            <MudTh>@previousMonth</MudTh>
+                            <MudTh>@currentMonth</MudTh>
+                            <MudTh>@nextMonth</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Tjans">Test</MudTd>
+                            <MudTd DataLabel="Beskrivelse">Test2</MudTd>
+                            <MudTd DataLabel="PreviousMonth">Test3</MudTd>
+                            <MudTd>Test4</MudTd>
+                            <MudTd>Test5</MudTd>
+                        </RowTemplate>
+                    </MudTable>*@
+                </MudGrid>
+            </MudPaper>
+        </MudContainer>
+    </Authorized>
+
+</AuthorizeView>
+
+@code {
+    private string currentMonth = string.Empty;
+    private string nextMonth = string.Empty;
+    private string previousMonth = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        currentMonth = GetCurrentMonth();
+        nextMonth = GetNextMonth();
+        previousMonth = GetPreviousMonth();
+    }
+
+    private string GetCurrentMonth()
+    {
+        currentMonth = DateTime.Today.ToString("MMMM", CultureInfo.GetCultureInfo("da-DK"));
+        return currentMonth;
+    }
+    private string GetNextMonth()
+    {
+        return nextMonth = DateTime.Today.AddMonths(1).ToString("MMMM", CultureInfo.GetCultureInfo("da-DK"));
+    }
+    private string GetPreviousMonth()
+    {
+        return previousMonth = DateTime.Today.AddMonths(-1).ToString("MMMM", CultureInfo.GetCultureInfo("da-DK"));
+    }
+}
+
