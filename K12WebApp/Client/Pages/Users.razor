@@ -11,54 +11,50 @@
     </NotAuthorized>
 
     <Authorized>
-        <MudContainer Class="mt-16" MaxWidth="MaxWidth.Medium">
+        <MudContainer Class="mt-10" MaxWidth="MaxWidth.Medium">
             <MudPaper Class="align-content-center rounded pa-14 mt-1" Elevation="5">
                 <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Køkken beboere</MudText>
                 <div class="d-flex justify-center">
                     <MudIcon Icon="@Icons.Material.Rounded.People" Color="Color.Primary" Style="height:30%; width:30%;" />
                 </div>
 
-                <MudGrid>
-                    <MudItem xs="12">
-                        <MudGrid Class="mt-10">
-                            <MudTable Items="@UserService.Users" Hover="@hover">
-                                <HeaderContent>
-                                    <MudTh>Fornavn</MudTh>
-                                    <MudTh>Efternavn</MudTh>
-                                    <MudTh>Brugernavn</MudTh>
-                                    <MudTh>Rolle</MudTh>
-                                    <MudTh>Email</MudTh>
-                                </HeaderContent>
-                                <RowTemplate Context="user">
-                                    <MudTd DataLabel="Fornavn">@user.FirstName</MudTd>
-                                    <MudTd DataLabel="Efternavn">@user.LastName</MudTd>
-                                    <MudTd DataLabel="Brugernavn">@user.NickName</MudTd>
-                                    <MudTd DataLabel="Rolle">@user.Role.Name</MudTd>
-                                    <MudTd DataLabel="Email">@user.Email</MudTd>
-                                    @if (hasPermissions == true)
-                                    {
-                                        <MudIconButton ButtonType="ButtonType.Button"
-                                                   Variant="Variant.Filled"
-                                                   @onclick="() => ShowUser(user.Id)"
-                                                   Icon="@Icons.Material.Filled.Edit"
-                                                   Color="Color.Transparent"
-                                                   Size="Size.Large"
-                                                   Class="rounded">
-                                        </MudIconButton>
-                                    }
-                                </RowTemplate>
-                            </MudTable>
-                            <MudButton ButtonType="ButtonType.Submit"
-                                       Variant="Variant.Filled"
-                                       @onclick="CreateNewUser"
-                                       Color="Color.Primary"
-                                       Size="Size.Large"
-                                       Class="rounded-lg"
-                                       Style="width: 100%; height: 40px">Opret ny bruger</MudButton>
-                            <span>Du er logget ind som @context.User.Identity.Name</span>
+                <MudGrid Class="mt-10">
+                    <MudTable Items="@UserService.Users" Hover="@hover">
+                        <HeaderContent>
+                            <MudTh>Fornavn</MudTh>
+                            <MudTh>Efternavn</MudTh>
+                            <MudTh>Brugernavn</MudTh>
+                            <MudTh>Rolle</MudTh>
+                            <MudTh>Email</MudTh>
+                        </HeaderContent>
+                        <RowTemplate Context="user">
+                            <MudTd DataLabel="Fornavn">@user.FirstName</MudTd>
+                            <MudTd DataLabel="Efternavn">@user.LastName</MudTd>
+                            <MudTd DataLabel="Brugernavn">@user.NickName</MudTd>
+                            <MudTd DataLabel="Rolle">@user.Role.Name</MudTd>
+                            <MudTd DataLabel="Email">@user.Email</MudTd>
+                            @if (hasPermissions == true)
+                            {
+                                <MudIconButton ButtonType="ButtonType.Button"
+                                               Variant="Variant.Filled"
+                                               @onclick="() => ShowUser(user.Id)"
+                                               Icon="@Icons.Material.Filled.Edit"
+                                               Color="Color.Transparent"
+                                               Size="Size.Large"
+                                               Class="rounded">
+                                </MudIconButton>
+                            }
+                        </RowTemplate>
+                    </MudTable>
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
+                               @onclick="CreateNewUser"
+                               Color="Color.Primary"
+                               Size="Size.Large"
+                               Class="rounded-lg"
+                               Style="width: 100%; height: 40px">Opret ny bruger</MudButton>
+                    <span>Du er logget ind som @context.User.Identity.Name</span>
 
-                        </MudGrid>
-                    </MudItem>
                 </MudGrid>
             </MudPaper>
         </MudContainer>
@@ -74,7 +70,7 @@
         try
         {
             await UserService.GetUsers();
-            await HasPermisions();        
+            await HasPermisions();
         }
         catch (Exception ex)
         {
@@ -94,11 +90,6 @@
 
     private async Task HasPermisions()
     {
-        /*
-        * Hardcoded.
-        * Todo: Burde smides ind i en metode hvor man smider
-         */
-
         var rolesWithPermissions = new[] { "Admin", "Køkken Ansvarlig" };
         string userRole = await AuthService.GetCurrentUserRole();
         if (rolesWithPermissions.Any(userRole.Contains))
