@@ -22,9 +22,10 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
 
 // Custom Services
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroceryService, GroceryService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IChoreService, ChoreService>();
 
 // MudBlazor
 builder.Services.AddMudServices();

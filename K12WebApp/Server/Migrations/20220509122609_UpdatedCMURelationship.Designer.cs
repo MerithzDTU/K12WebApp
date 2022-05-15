@@ -4,6 +4,7 @@ using K12WebApp.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace K12WebApp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220509122609_UpdatedCMURelationship")]
+    partial class UpdatedCMURelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -771,6 +773,21 @@ namespace K12WebApp.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("K12WebApp.Shared.ChoreMonthUser", b =>
+                {
+                    b.Property<int>("AssignedRoomNo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChoreMonthId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AssignedRoomNo", "ChoreMonthId");
+
+                    b.HasIndex("ChoreMonthId");
+
+                    b.ToTable("ChoreMonthsUsers");
+                });
+
             modelBuilder.Entity("K12WebApp.Shared.Grocery", b =>
                 {
                     b.Property<int>("Id")
@@ -806,7 +823,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 1,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8712),
+                            DateCreated = new DateTime(2022, 5, 9, 14, 26, 8, 816, DateTimeKind.Local).AddTicks(7993),
                             GroceryName = "Løg",
                             isBought = false
                         },
@@ -814,7 +831,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 2,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8758),
+                            DateCreated = new DateTime(2022, 5, 9, 14, 26, 8, 816, DateTimeKind.Local).AddTicks(8022),
                             GroceryName = "Hvidløg",
                             isBought = false
                         },
@@ -822,7 +839,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 3,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8761),
+                            DateCreated = new DateTime(2022, 5, 9, 14, 26, 8, 816, DateTimeKind.Local).AddTicks(8025),
                             GroceryName = "Affaldsposer",
                             isBought = false
                         },
@@ -830,7 +847,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 4,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8763),
+                            DateCreated = new DateTime(2022, 5, 9, 14, 26, 8, 816, DateTimeKind.Local).AddTicks(8027),
                             GroceryName = "Karry",
                             isBought = false
                         });
@@ -919,6 +936,9 @@ namespace K12WebApp.Server.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("RoomNo")
+                        .IsUnique();
 
                     b.ToTable("Users");
 
@@ -1045,83 +1065,6 @@ namespace K12WebApp.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("K12WebApp.Shared.UserChore", b =>
-                {
-                    b.Property<int>("AssignedRoomNo")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ChoreMonthId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AssignedRoomNo", "ChoreMonthId");
-
-                    b.HasIndex("ChoreMonthId");
-
-                    b.ToTable("UserChores");
-
-                    b.HasData(
-                        new
-                        {
-                            AssignedRoomNo = 1349,
-                            ChoreMonthId = 2
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1350,
-                            ChoreMonthId = 14
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1351,
-                            ChoreMonthId = 14
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1353,
-                            ChoreMonthId = 3
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1343,
-                            ChoreMonthId = 4
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1353,
-                            ChoreMonthId = 26
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1340,
-                            ChoreMonthId = 38
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1341,
-                            ChoreMonthId = 50
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1343,
-                            ChoreMonthId = 62
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1344,
-                            ChoreMonthId = 74
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1345,
-                            ChoreMonthId = 86
-                        },
-                        new
-                        {
-                            AssignedRoomNo = 1346,
-                            ChoreMonthId = 98
-                        });
-                });
-
             modelBuilder.Entity("K12WebApp.Shared.ChoreMonth", b =>
                 {
                     b.HasOne("K12WebApp.Shared.Chore", null)
@@ -1129,6 +1072,25 @@ namespace K12WebApp.Server.Migrations
                         .HasForeignKey("ChoreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("K12WebApp.Shared.ChoreMonthUser", b =>
+                {
+                    b.HasOne("K12WebApp.Shared.User", "AssignedUser")
+                        .WithMany("ChoreMonths")
+                        .HasForeignKey("AssignedRoomNo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("K12WebApp.Shared.ChoreMonth", "ChoreMonth")
+                        .WithMany("AssignedUsers")
+                        .HasForeignKey("ChoreMonthId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedUser");
+
+                    b.Navigation("ChoreMonth");
                 });
 
             modelBuilder.Entity("K12WebApp.Shared.Grocery", b =>
@@ -1153,26 +1115,6 @@ namespace K12WebApp.Server.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("K12WebApp.Shared.UserChore", b =>
-                {
-                    b.HasOne("K12WebApp.Shared.User", "AssignedUser")
-                        .WithMany("UserChores")
-                        .HasForeignKey("AssignedRoomNo")
-                        .HasPrincipalKey("RoomNo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("K12WebApp.Shared.ChoreMonth", "ChoreMonth")
-                        .WithMany("UserChores")
-                        .HasForeignKey("ChoreMonthId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AssignedUser");
-
-                    b.Navigation("ChoreMonth");
-                });
-
             modelBuilder.Entity("K12WebApp.Shared.Chore", b =>
                 {
                     b.Navigation("ChoreMonths");
@@ -1180,12 +1122,12 @@ namespace K12WebApp.Server.Migrations
 
             modelBuilder.Entity("K12WebApp.Shared.ChoreMonth", b =>
                 {
-                    b.Navigation("UserChores");
+                    b.Navigation("AssignedUsers");
                 });
 
             modelBuilder.Entity("K12WebApp.Shared.User", b =>
                 {
-                    b.Navigation("UserChores");
+                    b.Navigation("ChoreMonths");
                 });
 #pragma warning restore 612, 618
         }

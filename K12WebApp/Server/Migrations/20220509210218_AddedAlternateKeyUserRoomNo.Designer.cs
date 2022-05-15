@@ -4,6 +4,7 @@ using K12WebApp.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace K12WebApp.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220509210218_AddedAlternateKeyUserRoomNo")]
+    partial class AddedAlternateKeyUserRoomNo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -806,7 +808,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 1,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8712),
+                            DateCreated = new DateTime(2022, 5, 9, 23, 2, 18, 131, DateTimeKind.Local).AddTicks(9886),
                             GroceryName = "Løg",
                             isBought = false
                         },
@@ -814,7 +816,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 2,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8758),
+                            DateCreated = new DateTime(2022, 5, 9, 23, 2, 18, 131, DateTimeKind.Local).AddTicks(9918),
                             GroceryName = "Hvidløg",
                             isBought = false
                         },
@@ -822,7 +824,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 3,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8761),
+                            DateCreated = new DateTime(2022, 5, 9, 23, 2, 18, 131, DateTimeKind.Local).AddTicks(9920),
                             GroceryName = "Affaldsposer",
                             isBought = false
                         },
@@ -830,7 +832,7 @@ namespace K12WebApp.Server.Migrations
                         {
                             Id = 4,
                             CreatedByUserId = 1,
-                            DateCreated = new DateTime(2022, 5, 10, 20, 21, 12, 641, DateTimeKind.Local).AddTicks(8763),
+                            DateCreated = new DateTime(2022, 5, 9, 23, 2, 18, 131, DateTimeKind.Local).AddTicks(9923),
                             GroceryName = "Karry",
                             isBought = false
                         });
@@ -917,6 +919,8 @@ namespace K12WebApp.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasAlternateKey("RoomNo");
 
                     b.HasIndex("RoleId");
 
@@ -1053,7 +1057,12 @@ namespace K12WebApp.Server.Migrations
                     b.Property<int>("ChoreMonthId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("AssignedUserId")
+                        .HasColumnType("int");
+
                     b.HasKey("AssignedRoomNo", "ChoreMonthId");
+
+                    b.HasIndex("AssignedUserId");
 
                     b.HasIndex("ChoreMonthId");
 
@@ -1157,10 +1166,7 @@ namespace K12WebApp.Server.Migrations
                 {
                     b.HasOne("K12WebApp.Shared.User", "AssignedUser")
                         .WithMany("UserChores")
-                        .HasForeignKey("AssignedRoomNo")
-                        .HasPrincipalKey("RoomNo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AssignedUserId");
 
                     b.HasOne("K12WebApp.Shared.ChoreMonth", "ChoreMonth")
                         .WithMany("UserChores")

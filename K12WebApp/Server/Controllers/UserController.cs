@@ -35,11 +35,30 @@ namespace K12WebApp.Server.Controllers
             var user = await _context.Users
                 .Include(x => x.Role)
                 .FirstOrDefaultAsync(x => x.Id == id);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound("Sorry no user found.");
             }
             return Ok(user);
+        }
+        [HttpGet]
+        [Route("{id}/chores")]
+        public async Task<ActionResult<List<ChoreMonth>>> GetUsersChores(int id)
+        {
+            var user = await _context.Users
+                .Include(x => x.Role)
+                .Include(x => x.UserChores)
+                .ThenInclude(x => x.ChoreMonth)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+            {
+                return NotFound("Sorry no user found.");
+            }
+            List<ChoreMonth> choreMonths = user.UserChores.Where(x => x.AssignedRoomNo == user.RoomNo).Select(x => x.ChoreMonth).ToList();
+            //var chores = await _context.UserChores.Where(u => u.AssignedRoomNo == user.RoomNo).ToListAsync();
+            if (!choreMonths.Any())
+                return NotFound("Sorry no chores found.");
+            return Ok(choreMonths);
         }
 
         [HttpPost]
@@ -60,7 +79,7 @@ namespace K12WebApp.Server.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (dbUser == null)
                 return NotFound("Sorry, but user could not be found.");
-            
+
             dbUser.FirstName = user.FirstName;
             dbUser.LastName = user.LastName;
             dbUser.NickName = user.NickName;
@@ -79,7 +98,7 @@ namespace K12WebApp.Server.Controllers
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (dbUser == null)
                 return NotFound("Sorry, but user could not be found.");
-            
+
             _context.Users.Remove(dbUser);
             await _context.SaveChangesAsync();
 
@@ -88,7 +107,7 @@ namespace K12WebApp.Server.Controllers
 
         private async Task<List<User>> GetDbUsers()
         {
-            return await _context.Users.Include(x =>x.Role).ToListAsync();
+            return await _context.Users.Include(x => x.Role).ToListAsync();
         }
     }
 }
