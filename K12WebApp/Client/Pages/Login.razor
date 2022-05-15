@@ -82,12 +82,19 @@
                 Snackbar.Add("Login successfull", Severity.Success);
                 NavigationManager.NavigateTo("/dashboard");
             }
-            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
                 snackBarConf();
                 var responseMsg = await response.Content.ReadAsStringAsync();
                 Snackbar.Add(responseMsg, Severity.Error);
                 Console.WriteLine(responseMsg);
+            }
+            else if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                snackBarConf();
+                var responseMsg = await response.Content.ReadAsStringAsync();
+                Snackbar.Add(responseMsg, Severity.Error);
+                Console.WriteLine(response);
             }
         }
         catch (Exception e)

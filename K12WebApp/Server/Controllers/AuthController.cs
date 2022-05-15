@@ -36,13 +36,15 @@ namespace K12WebApp.Server.Controllers
         public async Task<ActionResult<string>> Login(UserLoginDto request)
         {
             User? dbUser = await _context.Users.FirstOrDefaultAsync(user => user.NickName == request.Username);
-            Console.WriteLine("DBUser name ----> " + dbUser.NickName);
-            if (dbUser == null)
+            var userExists = await _context.Users.AnyAsync(user => user.Email == request.Email);
+           
+            if (!userExists)
             {
+                Console.WriteLine("BRUGEREN IKKE FUNDET");
                 return BadRequest("Brugeren er ikke fundet.");
             }
 
-            if (!VerifyPasswordHash(request.Password, dbUser.PasswordHash, dbUser.PasswordSalt))
+            if (!VerifyPasswordHash(request.Password, dbUser?.PasswordHash, dbUser?.PasswordSalt))
             {
                 return BadRequest("Forkert kodeord.");
             }
