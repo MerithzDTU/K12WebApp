@@ -1,5 +1,7 @@
 ﻿@page "/chores"
 @using System.Globalization
+@inject IChoreService ChoreService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Tjanser</PageTitle>
 
@@ -10,14 +12,14 @@
 
     <Authorized>
         <MudContainer Class="mt-10" MaxWidth="MaxWidth.Small">
-            <MudPaper Class="center rounded pa-14 mt-1" Elevation="5">
+            <MudPaper Class="align-content-center rounded pa-14 mt-1" Elevation="5">
                 <MudText Class="mud-typography-h4" Color="Color.Primary" Align="Align.Center">Tjanseliste</MudText>
                 <div class="d-flex justify-center">
                     <MudIcon Icon="@Icons.Material.Rounded.CleaningServices" Color="Color.Primary" Style="height:30%; width:30%;" />
                 </div>
 
                 <MudGrid Class="mt-10">
-                    @*<MudTable>
+                    <MudTable Items="@ChoreService.Chores" Hover="@hover">
                         <HeaderContent>
                             <MudTh>Tjans</MudTh>
                             <MudTh>Beskrivelse</MudTh>
@@ -25,14 +27,14 @@
                             <MudTh>@currentMonth</MudTh>
                             <MudTh>@nextMonth</MudTh>
                         </HeaderContent>
-                        <RowTemplate>
-                            <MudTd DataLabel="Tjans">Test</MudTd>
-                            <MudTd DataLabel="Beskrivelse">Test2</MudTd>
-                            <MudTd DataLabel="PreviousMonth">Test3</MudTd>
-                            <MudTd>Test4</MudTd>
-                            <MudTd>Test5</MudTd>
+                        <RowTemplate Context="chore">
+                            <MudTd DataLabel="Tjans">@chore.Name</MudTd>
+                            <MudTd DataLabel="Beskrivelse">@chore.Description</MudTd>
+                            <MudTd DataLabel="PreviousMonth">@chore</MudTd>
+                            <MudTd DataLabel="CurrentMonth">Test4</MudTd>
+                            <MudTd DataLabel="NextMonth">Test5</MudTd>
                         </RowTemplate>
-                    </MudTable>*@
+                    </MudTable>
                 </MudGrid>
             </MudPaper>
         </MudContainer>
@@ -44,26 +46,41 @@
     private string currentMonth = string.Empty;
     private string nextMonth = string.Empty;
     private string previousMonth = string.Empty;
+    private bool hover = true;
+    private List<ChoreMonth> choreMonths = new List<ChoreMonth>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        currentMonth = GetCurrentMonth();
-        nextMonth = GetNextMonth();
-        previousMonth = GetPreviousMonth();
+        currentMonth = GetMonthName(-2);
+        nextMonth = GetMonthName(-1);
+        previousMonth = GetMonthName(-3);
+        try
+        {
+            await ChoreService.GetChoreMonths();
+            await ChoreService.GetChores();
+            await ChoreService.GetUserChores();
+
+            Console.WriteLine("1. linje: " + previousMonth);
+            Console.WriteLine("ChoreMonthId: " + ChoreService.ChoreMonths.ElementAt(14).Id);
+            Console.WriteLine("2. linje tildelte brugere: " + ChoreService.ChoreMonths.First(c => c.ChoreId == 2 && c.Name == previousMonth));
+            Console.WriteLine("3. linje: " + ChoreService.ChoreMonths.Count());
+            Console.WriteLine(ChoreService.ChoreMonthUsers);
+
+        } catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 
-    private string GetCurrentMonth()
+    private string GetMonthName(int offset)
     {
-        currentMonth = DateTime.Today.ToString("MMMM", CultureInfo.GetCultureInfo("da-DK"));
-        return currentMonth;
+        var dkCulture = System.Globalization.CultureInfo.GetCultureInfoByIetfLanguageTag("da-DK");
+        CultureInfo.CurrentCulture = dkCulture;
+        CultureInfo.DefaultThreadCurrentUICulture = dkCulture;
+        CultureInfo.DefaultThreadCurrentCulture = dkCulture;
+        return DateTime.Today.AddMonths(offset).ToString("MMMM").ToLower();
     }
-    private string GetNextMonth()
-    {
-        return nextMonth = DateTime.Today.AddMonths(1).ToString("MMMM", CultureInfo.GetCultureInfo("da-DK"));
-    }
-    private string GetPreviousMonth()
-    {
-        return previousMonth = DateTime.Today.AddMonths(-1).ToString("MMMM", CultureInfo.GetCultureInfo("da-DK"));
-    }
+
+
 }
 

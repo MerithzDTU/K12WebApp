@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace K12WebApp.Shared
 {
@@ -19,6 +20,6 @@ namespace K12WebApp.Shared
         public int RoleId { get; set; } 
         public byte[]? PasswordHash { get; set; }
         public byte[]? PasswordSalt { get; set; }
-        public List<ChoreMonth> ChoreMonths { get; set; }
+        public IList<UserChore>? UserChores { get; set; }
     }
 }

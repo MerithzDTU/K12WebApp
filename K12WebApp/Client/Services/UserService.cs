@@ -48,7 +48,7 @@ namespace K12WebApp.Client.Services
             var result = await _http.GetFromJsonAsync<User>($"api/user/{id}");
             if (result != null)
                 return result;
-            throw new Exception("Hero not found!");
+            throw new Exception("User not found!");
         }
 
         public async Task GetUsers()

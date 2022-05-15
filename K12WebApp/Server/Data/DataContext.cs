@@ -12,13 +12,27 @@ namespace K12WebApp.Server.Data
         public DbSet<Grocery> Groceries { get; set; }
         public DbSet<Chore> Chores { get; set; }
         public DbSet<ChoreMonth> ChoreMonths { get; set; }
+        public DbSet<UserChore> UserChores { get; set; }
 
         public List<int> allChoreIds = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().HasIndex(t => t.RoomNo).IsUnique();
-            modelBuilder.Entity<ChoreMonth>().HasMany(c => c.AssignedUser).WithMany(u => u.ChoreMonths);
+            //modelBuilder.Entity<User>().HasAlternateKey(t => t.RoomNo);
+            //modelBuilder.Entity<ChoreMonth>().HasMany(c => c.AssignedUsers).WithMany(u => u.ChoreMonths);
+            modelBuilder.Entity<UserChore>().HasKey(cmu => new { cmu.AssignedRoomNo, cmu.ChoreMonthId });
+
+            modelBuilder.Entity<UserChore>()
+                .HasOne<User>(cmu => cmu.AssignedUser)
+                .WithMany(cm => cm.UserChores)
+                .HasForeignKey(cmu => cmu.AssignedRoomNo)
+                .HasPrincipalKey(u => u.RoomNo);
+
+            modelBuilder.Entity<UserChore>()
+                .HasOne<ChoreMonth>(cmu => cmu.ChoreMonth)
+                .WithMany(cm => cm.UserChores)
+                .HasForeignKey(cm => cm.ChoreMonthId);
+
 
             List<Chore> allChores = new List<Chore>() {
                 new Chore { Id = 1, Name = "Tjanse-tjekker", Description = "" },
@@ -93,6 +107,21 @@ namespace K12WebApp.Server.Data
 
             modelBuilder.Entity<Chore>().HasData(
                     allChores
+                );
+
+            modelBuilder.Entity<UserChore>().HasData(
+                new UserChore { AssignedRoomNo = 1349, ChoreMonthId = 2 },
+                new UserChore { AssignedRoomNo = 1350, ChoreMonthId = 14 },
+                new UserChore { AssignedRoomNo = 1351, ChoreMonthId = 14 },
+                new UserChore { AssignedRoomNo = 1353, ChoreMonthId = 3 },
+                new UserChore { AssignedRoomNo = 1343, ChoreMonthId = 4 },
+                new UserChore { AssignedRoomNo = 1353, ChoreMonthId = 26 },
+                new UserChore { AssignedRoomNo = 1340, ChoreMonthId = 38 },
+                new UserChore { AssignedRoomNo = 1341, ChoreMonthId = 50 },
+                new UserChore { AssignedRoomNo = 1343, ChoreMonthId = 62 },
+                new UserChore { AssignedRoomNo = 1344, ChoreMonthId = 74 },
+                new UserChore { AssignedRoomNo = 1345, ChoreMonthId = 86 },
+                new UserChore { AssignedRoomNo = 1346, ChoreMonthId = 98 }
                 );
         }
     }
